@@ -78,15 +78,15 @@ def main():
     atexit.register(Disconnect, serviceInstance)
 
     vm = None
-    if args.uuid:
+    if module.uuid:
         search_index = serviceInstance.content.searchIndex
-        vm = search_index.FindByUuid(None, args.uuid, True)
-    elif args.vm_name:
+        vm = search_index.FindByUuid(None, module.uuid, True)
+    elif module.vm_name:
         content = serviceInstance.RetrieveContent()
-        vm = get_obj(content, [vim.VirtualMachine], args.vm_name)
+        vm = get_obj(content, [vim.VirtualMachine], module.vm_name)
 
     if vm:
-        remove_vnic(serviceInstance, vm, int(args.nic_number))
+        remove_vnic(serviceInstance, vm, int(module.nic_number))
     else:
         print ("VM not found")
 
