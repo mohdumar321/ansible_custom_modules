@@ -23,20 +23,6 @@ from ansible.module_utils.vmware import (find_obj, gather_vm_facts, get_all_objs
                                          compile_folder_path_for_object, serialize_spec,
                                          vmware_argument_spec, set_vm_power_state, PyVmomi)
 
-def get_args():
-    argument_spec = vmware_argument_spec()
-    module = AnsibleModule(argument_spec.update(
-        nic_state=dict(type='str', default='present', choices=['absent'
-                       , 'present']),
-        hostname=dict(type='str', required=True),
-        username=dict(type='str', required=True),
-        password=dict(type='str', required=True),
-        port=dict(type='int', default='443'),
-        vm_name=dict(type='str', required=True),
-        uuid=dict(type='int', required=True),
-        nic_number=dict(type='int', required=True),
-        ))
-    return module
 
 def get_obj(content, vimtype, name):
     obj = None
@@ -49,12 +35,6 @@ def get_obj(content, vimtype, name):
     return obj
 
 def remove_vnic(si, vm, nic_number):
-    """ Deletes virtual NIC based on nic number
-    :param si: Service Instance
-    :param vm: Virtual Machine Object
-    :param nic_number: Unit Number
-    :return: True if success
-    """
     nic_prefix_label = 'Network adapter '
     nic_label = nic_prefix_label + str(nic_number)
     virtual_nic_device = None
@@ -78,14 +58,22 @@ def remove_vnic(si, vm, nic_number):
     return True
 
 def main():
-    args = get_args()
+    argument_spec = vmware_argument_spec()
+    argument_spec.update(dict(hostname=dict(type='str', required=True),
+                              username=dict(type='str', required=True),
+                              password=dict(type='str', required=True),
+                              port=dict(type='int', default='443'),
+                              vm_name=dict(type='str', required=True),
+                              uuid=dict(type='int', required=True),
+                              nic_number=dict(type='int', required=True)))
+    module = AnsibleModule(argument_spec=argument_spec)
 
     # connect this thing
     serviceInstance = SmartConnect(
-            host=args.hostname,
-            user=args.username,
-            pwd=args.password,
-            port=args.port)
+            host=module.hostname,
+            user=module.username,
+            pwd=module.password,
+            port=module.port)
     # disconnect this thing
     atexit.register(Disconnect, serviceInstance)
 
