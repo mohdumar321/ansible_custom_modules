@@ -65,9 +65,9 @@ def get_args():
                               password=dict(type='str', required=True),
                               port=dict(type='int', default='443'),
                               name=dict(type='str', required=True),
-                              uuid=dict(type='int', required=True),
+                              uuid=dict(type='str', required=True),
                               nic_state=dict(type='str'),
-                              nic_number=dict(type='int')))
+                              nic_number=dict(type='str')))
     module = AnsibleModule(argument_spec=argument_spec)
     return module
 
