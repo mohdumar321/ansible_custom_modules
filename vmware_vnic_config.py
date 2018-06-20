@@ -1,4 +1,6 @@
 
+#!/usr/bin/env python
+
 import atexit
 import requests
 from tools import cli
@@ -15,13 +17,7 @@ if hasattr(requests.packages.urllib3, 'disable_warnings'):
 
 
 def update_virtual_nic_state(si, vm_obj, nic_number, new_nic_state):
-    """
-    :param si: Service Instance
-    :param vm_obj: Virtual Machine Object
-    :param nic_number: Network Interface Controller Number
-    :param new_nic_state: Either Connect, Disconnect or Delete
-    :return: True if success
-    """
+
     nic_prefix_label = 'Network adapter '
     nic_label = nic_prefix_label + str(nic_number)
     virtual_nic_device = None
@@ -68,10 +64,10 @@ def get_args():
                               username=dict(type='str', required=True),
                               password=dict(type='str', required=True),
                               port=dict(type='int', default='443'),
-                              vm_name=dict(type='str', required=True),
+                              name=dict(type='str', required=True),
                               uuid=dict(type='int', required=True),
-                              nic_state=dict(type='str')
-                              nic_number=dict(type='int', required=True)))
+                              nic_state=dict(type='str'),
+                              nic_number=dict(type='int')))
     module = AnsibleModule(argument_spec=argument_spec)
     return module
 
@@ -100,16 +96,15 @@ def main():
     atexit.register(Disconnect, si)
 
     content = si.RetrieveContent()
-    print 'Searching for VM {}'.format(args.params['vm_name'])
-    vm_obj = get_obj(content, [vim.VirtualMachine], args.params['vm_name'])
+    print ('Searching for VM {}').format(args.params['name'])
+    vm_obj = get_obj(content, [vim.VirtualMachine], args.params['name'])
 
     if vm_obj:
         update_virtual_nic_state(si, vm_obj, args.params['nic_number'], args.params['nic_state'])
-        print 'VM NIC {} successfully' \
-              ' state changed to {}'.format(args.params['nic_number'], args.params['nic_state'])
+        print ('VM NIC {} successfully' \
+              ' state changed to {}').format(args.params['nic_number'], args.params['nic_state'])
     else:
-        print "VM not found"
-
+        print ("VM not found")
 # start
 if __name__ == "__main__":
     main()
